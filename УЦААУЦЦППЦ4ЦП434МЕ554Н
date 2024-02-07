@@ -1,0 +1,28 @@
+pragma solidity ^0.8.0;
+
+contract FinanceContract {
+    struct UserInfo {
+        uint256 balance;
+    }
+    
+    mapping(address => UserInfo) public users;
+
+    event Deposit(address indexed user, uint256 amount);
+
+    function deposit() external payable {
+        require(msg.value > 0, "Neobhodimo otpravit znachenie > 0");
+        users[msg.sender].balance += msg.value;
+        emit Deposit(msg.sender, msg.value);
+    }
+
+    function getBalance(address user) external view returns (uint256) {
+        return users[user].balance;
+    }
+
+    function withdraw(uint256 amount) external {
+        require(amount > 0, "Znacheniye dolzhno bit > 0");
+        require(amount <= address(this).balance, "Nedostatochno sredstv");
+        payable(msg.sender).transfer(amount);
+        users[msg.sender].balance -= amount;
+    }
+}
